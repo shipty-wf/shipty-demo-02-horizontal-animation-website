@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TBWA\HAKUHODO — Disruptive Innovation Agency</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#040714',
+              900: '#070b1e',
+              850: '#0c1333',
+              800: '#111c47',
+              700: '#172763',
+              600: '#233989',
+              500: '#3452b4',
+              400: '#5275e0',
+              300: '#83a1f8',
+              200: '#b8cbff',
+              100: '#e3ecff',
+              50: '#f2f6ff',
+            },
+            accent: {
+              electric: '#38bdf8',
+              cobalt: '#2563eb',
+              gold: '#fbbf24',
+              cyan: '#06b6d4',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Syne"', 'sans-serif'],
+            mono: ['"Space Grotesk"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    ::selection {
+      background: #38bdf8;
+      color: #040714;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #040714;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #172763;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #38bdf8;
+    }
+
+    .glass-panel {
+      background: rgba(12, 19, 51, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(82, 117, 224, 0.15);
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(17, 28, 71, 0.7) 0%, rgba(7, 11, 30, 0.9) 100%);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(82, 117, 224, 0.2);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 20px 40px -15px rgba(56, 189, 248, 0.2);
+    }
+
+    .text-glow {
+      text-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
+    }
+
+    .gradient-text-navy {
+      background: linear-gradient(135deg, #ffffff 0%, #b8cbff 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .bg-grid-pattern {
+      background-size: 60px 60px;
+      background-image: 
+        linear-gradient(to right, rgba(82, 117, 224, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(82, 117, 224, 0.05) 1px, transparent 1px);
+    }
+
+    .custom-cursor {
+      pointer-events: none;
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(56, 189, 248, 0.6);
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out, width 0.2s, height 0.2s, background 0.2s;
+      z-index: 9999;
+    }
+    .custom-cursor-dot {
+      pointer-events: none;
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: #38bdf8;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10000;
+    }
+
+    .horizontal-scroll-container {
+      overflow: hidden;
+      width: 100%;
+    }
+    .horizontal-track {
+      display: flex;
+      flex-wrap: nowrap;
+      width: fit-content;
+      will-change: transform;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.08); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 6s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans antialiased overflow-x-hidden relative selection:bg-accent-electric selection:text-navy-950">
+
+  <!-- Interactive Custom Cursor (Desktop) -->
+  <div id="cursor" class="custom-cursor hidden md:block"></div>
+  <div id="cursor-dot" class="custom-cursor-dot hidden md:block"></div>
+
+  <!-- Ambient Navy Gradients Background -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-navy-700/30 rounded-full blur-[140px] pulse-glow"></div>
+    <div class="absolute top-1/2 -right-40 w-[700px] h-[700px] bg-navy-600/20 rounded-full blur-[160px] pulse-glow" style="animation-delay: 2s;"></div>
+    <div class="absolute -bottom-40 left-1/3 w-[650px] h-[650px] bg-accent-cobalt/15 rounded-full blur-[150px] pulse-glow" style="animation-delay: 4s;"></div>
+    <div class="absolute inset-0 bg-grid-pattern opacity-40"></div>
+  </div>
+
+  <!-- Main Navigation -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 md:px-12 glass-panel border-b border-navy-800/60">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="group flex items-center space-x-3 text-white">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-navy-600 to-accent-electric flex items-center justify-center font-display font-extrabold text-white text-base shadow-lg shadow-navy-600/50">
+          \
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display tracking-widest font-extrabold text-lg md:text-xl text-white group-hover:text-accent-electric transition-colors">
+            TBWA\HAKUHODO
+          </span>
+          <span class="font-mono text-[9px] uppercase tracking-widest text-navy-300">Disruption® Company</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium tracking-wider text-slate-300">
+        <a href="#about" class="hover:text-accent-electric transition-colors">DISRUPTION</a>
+        <a href="#showcase" class="hover:text-accent-electric transition-colors flex items-center space-x-1">
+          <span>WORKS</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-electric animate-ping"></span>
+        </a>
+        <a href="#methodology" class="hover:text-accent-electric transition-colors">PRACTICES</a>
+        <a href="#awards" class="hover:text-accent-electric transition-colors">RECOGNITION</a>
+        <a href="#contact" class="hover:text-accent-electric transition-colors">TALK WITH US</a>
+      </nav>
+
+      <!-- Action Button & Status -->
+      <div class="flex items-center space-x-4">
+        <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-navy-900/80 border border-navy-700/60 text-xs font-mono text-navy-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>TOKYO HQ &bull; OPEN</span>
+        </div>
+
+        <a href="#showcase" class="px-4 py-2 rounded-full bg-accent-electric hover:bg-white text-navy-950 text-xs font-bold tracking-wider uppercase transition-all duration-300 shadow-md shadow-accent-electric/30 hover:scale-105 active:scale-95">
+          Explore Works
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center justify-center pt-24 pb-16 px-6 md:px-12 z-10">
+    <div class="max-w-6xl mx-auto text-center flex flex-col items-center">
+      
+      <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-navy-900/90 border border-navy-700 mb-8 backdrop-blur-md">
+        <span class="text-accent-electric font-mono text-xs font-semibold uppercase tracking-widest">Global Creative Collective</span>
+        <span class="text-slate-500">&bull;</span>
+        <span class="text-navy-300 text-xs font-mono">Tokyo &bull; Worldwide</span>
+      </div>
+
+      <h1 class="font-display font-black text-4xl sm:text-6xl md:text-8xl tracking-tight leading-[1.08] mb-8">
+        <span class="block text-white">THE DISRUPTION®</span>
+        <span class="block gradient-text-navy text-glow">COMPANY TOKYO</span>
+      </h1>
+
+      <p class="max-w-2xl text-base sm:text-lg md:text-xl text-slate-300 font-light leading-relaxed mb-10">
+        We dismantle category conventions to create unexpected business growth and cultural resonance. Discover our signature horizontal narrative showcase.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center gap-4">
+        <a href="#showcase" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-accent-electric to-blue-600 hover:from-white hover:to-white text-navy-950 font-bold text-sm tracking-wider uppercase transition-all duration-300 shadow-xl shadow-accent-electric/25 hover:shadow-accent-electric/40 hover:scale-105">
+          Begin Horizontal Journey &rarr;
+        </a>
+        <a href="#about" class="w-full sm:w-auto px-8 py-4 rounded-full glass-panel hover:bg-navy-800 text-white font-medium text-sm tracking-wider uppercase border border-navy-700 transition-all duration-300">
+          Our Philosophy
+        </a>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 mt-20 w-full max-w-4xl pt-8 border-t border-navy-800/80">
+        <div class="text-center">
+          <div class="font-display text-3xl sm:text-4xl font-extrabold text-white mb-1">#1</div>
+          <div class="text-xs font-mono text-navy-300 uppercase tracking-wider">Agency of the Decade</div>
+        </div>
+        <div class="text-center">
+          <div class="font-display text-3xl sm:text-4xl font-extrabold text-accent-electric mb-1">150+</div>
+          <div class="text-xs font-mono text-navy-300 uppercase tracking-wider">Cannes &amp; D&amp;AD Honors</div>
+        </div>
+        <div class="text-center">
+          <div class="font-display text-3xl sm:text-4xl font-extrabold text-white mb-1">18 yrs</div>
+          <div class="text-xs font-mono text-navy-300 uppercase tracking-wider">Disruptive Heritage</div>
+        </div>
+        <div class="text-center">
+          <div class="font-display text-3xl sm:text-4xl font-extrabold text-accent-electric mb-1">50+</div>
+          <div class="text-xs font-mono text-navy-300 uppercase tracking-wider">Global Enterprise Brands</div>
+        </div>
+      </div>
+
+      <div class="mt-14 flex flex-col items-center space-y-2 text-xs font-mono text-navy-300">
+        <span>SCROLL DOWN TO ENTER HORIZONTAL STAGE</span>
+        <div class="w-5 h-9 rounded-full border-2 border-navy-600 flex items-start justify-center p-1">
+          <div class="w-1.5 h-2.5 rounded-full bg-accent-electric animate-bounce"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Horizontal Scroll Experience Wrapper -->
+  <section id="showcase" class="horizontal-scroll-container relative bg-navy-950 py-12">
+    
+    <div class="sticky top-20 left-6 md:left-12 z-40 inline-flex items-center space-x-3 px-4 py-2 rounded-full glass-panel border border-accent-electric/30 mb-4 ml-6 md:ml-12">
+      <div class="w-2.5 h-2.5 rounded-full bg-accent-electric animate-ping"></div>
+      <span class="font-mono text-xs uppercase tracking-widest text-white">Horizontal Scroll &bull; Projects &amp; Capabilities</span>
+      <span id="scroll-progress-pct" class="font-mono text-xs font-bold text-accent-electric">0%</span>
+    </div>
+
+    <div id="horizontalTrack" class="horizontal-track flex items-stretch px-6 md:px-16 gap-8 pb-12">
+      
+      <!-- Slide 1 -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group">
+        <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-accent-cobalt/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+        
+        <div>
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-navy-800 text-accent-electric font-mono text-xs uppercase tracking-widest">
+              01 // Prologue
+            </span>
+            <span class="font-mono text-xs text-navy-300">Tokyo &bull; Creative Core</span>
+          </div>
+
+          <h2 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight mb-6">
+            CRAFTING NARRATIVES <br/>
+            <span class="gradient-text-navy">THAT DEFY GRAVITY</span>
+          </h2>
+
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-light">
+            TBWA\HAKUHODO is born from the fusion of global disruptive methodology and deep Japanese craftsmanship. We don't just run campaigns—we architect cultural milestones.
+          </p>
+
+          <ul class="space-y-2.5 font-mono text-xs text-navy-200">
+            <li class="flex items-center space-x-2">
+              <span class="w-1.5 h-1.5 bg-accent-electric rounded-full"></span>
+              <span>Disruption® Strategy &amp; Brand Philosophy</span>
+            </li>
+            <li class="flex items-center space-x-2">
+              <span class="w-1.5 h-1.5 bg-accent-electric rounded-full"></span>
+              <span>Spatial Computing &amp; Interactive Web Systems</span>
+            </li>
+            <li class="flex items-center space-x-2">
+              <span class="w-1.5 h-1.5 bg-accent-electric rounded-full"></span>
+              <span>Data-Driven Experiential Activations</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-navy-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+          <span>Swipe or scroll right &rarr;</span>
+          <span class="text-accent-electric font-semibold">TBWA\HAKUHODO INC.</span>
+        </div>
+      </div>
+
+      <!-- Slide 2: Nissan -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/70 to-transparent z-10"></div>
+        <img 
+          src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80" 
+          alt="Automotive Futuristic Journey" 
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-40"
+        />
+
+        <div class="relative z-20">
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-accent-cobalt/40 border border-accent-cobalt text-accent-electric font-mono text-xs uppercase tracking-widest">
+              02 // Mobility Case
+            </span>
+            <span class="font-mono text-xs text-navy-200">Grand Prix &bull; Cannes</span>
+          </div>
+
+          <h3 class="font-display text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-3">
+            NISSAN: THE SILENT ACCELERATION
+          </h3>
+          <p class="font-mono text-xs text-accent-electric uppercase tracking-widest mb-4">
+            Autonomous Electric Mobility Campaign
+          </p>
+
+          <p class="text-slate-300 text-sm leading-relaxed mb-6 font-light">
+            Transforming urban mobility perception by merging real-time sensor visualization with emotional storytelling, turning everyday commuting into an immersive sensory adventure.
+          </p>
+        </div>
+
+        <div class="relative z-20 pt-6 border-t border-navy-800/80 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-1 rounded bg-navy-800/90 text-slate-300 text-[11px] font-mono">Interactive WebGL</span>
+            <span class="px-2.5 py-1 rounded bg-navy-800/90 text-slate-300 text-[11px] font-mono">Brand Identity</span>
+          </div>
+          <span class="text-accent-electric font-mono text-xs font-semibold cursor-pointer group-hover:translate-x-2 transition-transform">
+            View Case Study &rarr;
+          </span>
+        </div>
+      </div>
+
+      <!-- Slide 3: McDonald's -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/70 to-transparent z-10"></div>
+        <img 
+          src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" 
+          alt="Gastronomy & Cultural Neon Night" 
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-40"
+        />
+
+        <div class="relative z-20">
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-accent-cobalt/40 border border-accent-cobalt text-accent-electric font-mono text-xs uppercase tracking-widest">
+              03 // Culture Case
+            </span>
+            <span class="font-mono text-xs text-navy-200">D&amp;AD Yellow Pencil</span>
+          </div>
+
+          <h3 class="font-display text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-3">
+            McDONALD'S: THE MIDNIGHT HARMONY
+          </h3>
+          <p class="font-mono text-xs text-accent-electric uppercase tracking-widest mb-4">
+            Gen-Z Social Experience &bull; AR Audio
+          </p>
+
+          <p class="text-slate-300 text-sm leading-relaxed mb-6 font-light">
+            Redefining evening dining for Tokyo's youth through geo-located generative music filters and interactive packaging that transformed fast-food receipts into digital concert tickets.
+          </p>
+        </div>
+
+        <div class="relative z-20 pt-6 border-t border-navy-800/80 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-1 rounded bg-navy-800/90 text-slate-300 text-[11px] font-mono">Mobile AR</span>
+            <span class="px-2.5 py-1 rounded bg-navy-800/90 text-slate-300 text-[11px] font-mono">Social Viral</span>
+          </div>
+          <span class="text-accent-electric font-mono text-xs font-semibold cursor-pointer group-hover:translate-x-2 transition-transform">
+            View Case Study &rarr;
+          </span>
+        </div>
+      </div>
+
+      <!-- Slide 4: Uniqlo -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/70 to-transparent z-10"></div>
+        <img 
+          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80" 
+          alt="Modern Fashion Architecture" 
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-40"
+        />
+
+        <div class="relative z-20">
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-accent-cobalt/40 border border-accent-cobalt text-accent-electric font-mono text-xs uppercase tracking-widest">
+              04 // Retail Case
+            </span>
+            <span class="font-mono text-xs text-navy-200">Spikes Asia Winner</span>
+          </div>
+
+          <h3 class="font-display text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-3">
+            UNIQLO: MOLECULAR HEAT
+          </h3>
+          <p class="font-mono text-xs text-accent-electric uppercase tracking-widest mb-4">
+            Global Digital Flagship Installation
+          </p>
+
+          <p class="text-slate-300 text-sm leading-relaxed mb-6 font-light">
+            Showcasing invisible thermal insulation science via a responsive infrared spatial exhibit in Ginza that translated thermal heat body sensors into living generative canvas art.
+          </p>
+        </div>
+
+        <div class="relative z-20 pt-6 border-t border-navy-800/80 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-1 rounded bg-navy-800/90 text-slate-300 text-[11px] font-mono">Sensory Tech</span>
+            <span class="px-2.5 py-1 rounded bg-navy-800/90 text-slate-300 text-[11px] font-mono">Retail Space</span>
+          </div>
+          <span class="text-accent-electric font-mono text-xs font-semibold cursor-pointer group-hover:translate-x-2 transition-transform">
+            View Case Study &rarr;
+          </span>
+        </div>
+      </div>
+
+      <!-- Slide 5: Methodology -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group">
+        <div class="absolute -top-16 -left-16 w-56 h-56 bg-accent-electric/10 rounded-full blur-3xl"></div>
+
+        <div>
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-navy-800 text-accent-electric font-mono text-xs uppercase tracking-widest">
+              05 // Methodology
+            </span>
+            <span class="font-mono text-xs text-navy-300">The 3-Step Engine</span>
+          </div>
+
+          <h3 class="font-display text-3xl sm:text-4xl font-black text-white leading-tight mb-6">
+            HOW WE DISRUPT
+          </h3>
+
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl bg-navy-900/90 border border-navy-700/60">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-mono text-xs text-accent-electric font-bold">STAGE 01 &bull; CONVENTION</span>
+                <span class="text-[11px] font-mono text-slate-400">Identify the unseen trap</span>
+              </div>
+              <p class="text-xs text-slate-300">We map out the orthodoxies and clichés competitors unconsciously repeat.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-navy-900/90 border border-accent-cobalt/50">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-mono text-xs text-accent-cyan font-bold">STAGE 02 &bull; DISRUPTION</span>
+                <span class="text-[11px] font-mono text-slate-400">The radical alternative</span>
+              </div>
+              <p class="text-xs text-slate-300">We formulate the disruptive catalyst that flips industry rules upside down.</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-navy-900/90 border border-accent-electric/50">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-mono text-xs text-white font-bold">STAGE 03 &bull; VISION</span>
+                <span class="text-[11px] font-mono text-slate-400">A new cultural North Star</span>
+              </div>
+              <p class="text-xs text-slate-300">We design long-term business platforms that command audience loyalty.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-navy-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+          <span>TBWA Worldwide Proprietary Framework</span>
+          <span class="text-accent-electric">Registered &reg;</span>
+        </div>
+      </div>
+
+      <!-- Slide 6: Awards -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group">
+        <div>
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-navy-800 text-accent-electric font-mono text-xs uppercase tracking-widest">
+              06 // Recognition
+            </span>
+            <span class="font-mono text-xs text-navy-300">Global Accolades</span>
+          </div>
+
+          <h3 class="font-display text-3xl sm:text-4xl font-black text-white leading-tight mb-6">
+            HONORED ON THE WORLD STAGE
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3 font-mono text-xs text-slate-200">
+            <div class="p-3.5 rounded-lg bg-navy-900/80 border border-navy-800 flex flex-col justify-between">
+              <span class="text-accent-electric font-bold text-base mb-1">Cannes Lions</span>
+              <span class="text-[11px] text-slate-400">Titanium &bull; Grand Prix &bull; 24 Lions</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-navy-900/80 border border-navy-800 flex flex-col justify-between">
+              <span class="text-accent-electric font-bold text-base mb-1">D&amp;AD Awards</span>
+              <span class="text-[11px] text-slate-400">Black Pencil &bull; Yellow Pencil &bull; Wood</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-navy-900/80 border border-navy-800 flex flex-col justify-between">
+              <span class="text-accent-electric font-bold text-base mb-1">The One Show</span>
+              <span class="text-[11px] text-slate-400">Best in Discipline &bull; Gold Pencils</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-navy-900/80 border border-navy-800 flex flex-col justify-between">
+              <span class="text-accent-electric font-bold text-base mb-1">Clio Awards</span>
+              <span class="text-[11px] text-slate-400">Grand Clio &bull; Agency of the Year</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-navy-900/80 border border-navy-800 flex flex-col justify-between">
+              <span class="text-accent-electric font-bold text-base mb-1">Spikes Asia</span>
+              <span class="text-[11px] text-slate-400">5x Agency of the Year</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-navy-900/80 border border-navy-800 flex flex-col justify-between">
+              <span class="text-accent-electric font-bold text-base mb-1">Campaign Asia</span>
+              <span class="text-[11px] text-slate-400">Japan/Korea Creative Agency of Year</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-navy-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+          <span>Continuous Excellence 2006–Present</span>
+          <span class="text-accent-electric font-semibold">Tokyo Office</span>
+        </div>
+      </div>
+
+      <!-- Slide 7: Next Step -->
+      <div class="horizontal-slide w-[85vw] sm:w-[540px] md:w-[620px] flex-shrink-0 flex flex-col justify-between p-8 sm:p-12 rounded-3xl glass-card relative overflow-hidden group bg-gradient-to-br from-navy-900 via-navy-850 to-navy-800">
+        <div class="absolute -right-16 -top-16 w-60 h-60 bg-accent-electric/20 rounded-full blur-3xl"></div>
+
+        <div>
+          <div class="flex items-center justify-between mb-8">
+            <span class="px-3 py-1 rounded-md bg-accent-electric text-navy-950 font-mono text-xs uppercase font-bold tracking-widest">
+              07 // Next Era
+            </span>
+            <span class="font-mono text-xs text-navy-300">Partnership</span>
+          </div>
+
+          <h3 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight mb-6">
+            READY TO DISRUPT <br/>
+            <span class="gradient-text-navy">YOUR INDUSTRY?</span>
+          </h3>
+
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 font-light">
+            We collaborate with fearless leaders who refuse to accept category conventions. Let's create something the world cannot ignore.
+          </p>
+
+          <div class="space-y-3">
+            <a href="#contact" class="block w-full text-center py-4 rounded-full bg-accent-electric hover:bg-white text-navy-950 font-bold text-xs font-mono uppercase tracking-widest transition-all duration-300 shadow-xl shadow-accent-electric/30">
+              Initiate Project Brief &rarr;
+            </a>
+            <a href="mailto:info@tbwahakuhodo.co.jp" class="block w-full text-center py-3.5 rounded-full glass-panel hover:bg-navy-800 text-white font-mono text-xs uppercase tracking-widest transition-all">
+              General Inquiries &bull; info@tbwahakuhodo.co.jp
+            </a>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-navy-800/80 flex items-center justify-between text-xs font-mono text-navy-300">
+          <span>Minato-ku, Tokyo, Japan</span>
+          <span class="text-accent-electric">Scroll to Exit Track &darr;</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Deep Dive Agency Philosophy -->
+  <section id="about" class="relative py-28 px-6 md:px-12 z-10 border-t border-navy-800/80">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <div class="lg:col-span-5">
+          <span class="text-accent-electric font-mono text-xs font-bold uppercase tracking-widest block mb-4">
+            // Core Philosophy
+          </span>
+          <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-6">
+            DISRUPTION® IS NOT A SLOGAN. IT IS OUR OPERATING SYSTEM.
+          </h2>
+          <p class="text-slate-300 text-base leading-relaxed mb-6 font-light">
+            In an era overwhelmed by identical algorithms and homogenized brand messaging, comfort with the conventional is the greatest corporate risk.
+          </p>
+          <p class="text-slate-300 text-base leading-relaxed mb-8 font-light">
+            TBWA\HAKUHODO combines Hakuhodo's deep understanding of Sei-katsu-sha (people as full human beings rather than mere consumers) with TBWA's proven global Disruption® methodology.
+          </p>
+
+          <div class="p-6 rounded-2xl bg-navy-900 border border-navy-800">
+            <div class="font-mono text-xs text-accent-electric uppercase tracking-wider mb-2">Our Guiding Principle</div>
+            <div class="text-lg font-display font-semibold text-white italic">
+              "If it's safe, it's not disruptive. If it's disruptive, it changes culture forever."
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          
+          <div class="p-8 rounded-2xl glass-card">
+            <div class="w-12 h-12 rounded-xl bg-navy-800 text-accent-electric flex items-center justify-center font-mono font-bold text-lg mb-6 border border-navy-700">
+              01
+            </div>
+            <h4 class="font-display text-xl font-bold text-white mb-3">Brand Transformation</h4>
+            <p class="text-slate-300 text-xs leading-relaxed font-light">
+              Re-architecting business definitions to discover uncontested market territory and build emotional loyalty that endures across generations.
+            </p>
+          </div>
+
+          <div class="p-8 rounded-2xl glass-card">
+            <div class="w-12 h-12 rounded-xl bg-navy-800 text-accent-electric flex items-center justify-center font-mono font-bold text-lg mb-6 border border-navy-700">
+              02
+            </div>
+            <h4 class="font-display text-xl font-bold text-white mb-3">Spatial &amp; Interactive</h4>
+            <p class="text-slate-300 text-xs leading-relaxed font-light">
+              Building interactive digital universes, WebGL experiments, and spatial computing environments that dissolve boundaries between physical and virtual worlds.
+            </p>
+          </div>
+
+          <div class="p-8 rounded-2xl glass-card">
+            <div class="w-12 h-12 rounded-xl bg-navy-800 text-accent-electric flex items-center justify-center font-mono font-bold text-lg mb-6 border border-navy-700">
+              03
+            </div>
+            <h4 class="font-display text-xl font-bold text-white mb-3">Social &amp; PR Movements</h4>
+            <p class="text-slate-300 text-xs leading-relaxed font-light">
+              Igniting organic conversations that earn billions of organic impressions and embed client narratives seamlessly into the global cultural zeitgeist.
+            </p>
+          </div>
+
+          <div class="p-8 rounded-2xl glass-card">
+            <div class="w-12 h-12 rounded-xl bg-navy-800 text-accent-electric flex items-center justify-center font-mono font-bold text-lg mb-6 border border-navy-700">
+              04
+            </div>
+            <h4 class="font-display text-xl font-bold text-white mb-3">AI &amp; Generative Design</h4>
+            <p class="text-slate-300 text-xs leading-relaxed font-light">
+              Pioneering hyper-personalized content pipelines, real-time dynamic assets, and AI workforce integration that scales creative ambition without limits.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Client Roster Showcase -->
+  <section id="methodology" class="py-20 px-6 md:px-12 bg-navy-900/40 border-t border-navy-800/80">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-accent-electric font-mono text-xs font-bold uppercase tracking-widest block mb-2">
+          // Esteemed Partners
+        </span>
+        <h3 class="font-display text-3xl sm:text-4xl font-extrabold text-white">
+          TRUSTED BY VISIONARY BRANDS
+        </h3>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center">
+        <div class="h-24 rounded-2xl glass-panel flex items-center justify-center text-center p-4 hover:border-accent-electric/50 transition-colors">
+          <span class="font-display font-extrabold text-slate-300 text-base tracking-widest">NISSAN</span>
+        </div>
+        <div class="h-24 rounded-2xl glass-panel flex items-center justify-center text-center p-4 hover:border-accent-electric/50 transition-colors">
+          <span class="font-display font-extrabold text-slate-300 text-base tracking-widest">APPLE</span>
+        </div>
+        <div class="h-24 rounded-2xl glass-panel flex items-center justify-center text-center p-4 hover:border-accent-electric/50 transition-colors">
+          <span class="font-display font-extrabold text-slate-300 text-base tracking-widest">McDONALD'S</span>
+        </div>
+        <div class="h-24 rounded-2xl glass-panel flex items-center justify-center text-center p-4 hover:border-accent-electric/50 transition-colors">
+          <span class="font-display font-extrabold text-slate-300 text-base tracking-widest">ADIDAS</span>
+        </div>
+        <div class="h-24 rounded-2xl glass-panel flex items-center justify-center text-center p-4 hover:border-accent-electric/50 transition-colors">
+          <span class="font-display font-extrabold text-slate-300 text-base tracking-widest">IKEA</span>
+        </div>
+        <div class="h-24 rounded-2xl glass-panel flex items-center justify-center text-center p-4 hover:border-accent-electric/50 transition-colors">
+          <span class="font-display font-extrabold text-slate-300 text-base tracking-widest">UNIQLO</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Contact & Briefing -->
+  <section id="contact" class="py-28 px-6 md:px-12 relative z-10 border-t border-navy-800/80">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="p-8 sm:p-14 rounded-3xl glass-card border border-navy-700/80 relative overflow-hidden">
+        <div class="absolute -top-32 -right-32 w-80 h-80 bg-accent-electric/15 rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10">
+          <span class="text-accent-electric font-mono text-xs font-bold uppercase tracking-widest block mb-3">
+            // Start a Conversation
+          </span>
+          
+          <h2 class="font-display text-3xl sm:text-5xl font-black text-white leading-tight mb-4">
+            LET'S DISRUPT TOGETHER
+          </h2>
+          
+          <p class="text-slate-300 text-sm sm:text-base font-light mb-8 max-w-xl">
+            Whether you are preparing a global product reveal, an interactive brand overhaul, or seeking revolutionary cultural positioning, our Tokyo team is ready.
+          </p>
+
+          <form id="contactForm" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label class="block font-mono text-xs uppercase tracking-wider text-slate-300 mb-2">Your Name / Organization</label>
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="e.g. Kenji Sato / Enterprise Corp" 
+                  class="w-full px-5 py-3.5 rounded-xl bg-navy-950/80 border border-navy-700 text-white placeholder-slate-500 focus:outline-none focus:border-accent-electric text-sm"
+                />
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs uppercase tracking-wider text-slate-300 mb-2">Business Email</label>
+                <input 
+                  type="email" 
+                  required 
+                  placeholder="name@company.com" 
+                  class="w-full px-5 py-3.5 rounded-xl bg-navy-950/80 border border-navy-700 text-white placeholder-slate-500 focus:outline-none focus:border-accent-electric text-sm"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label class="block font-mono text-xs uppercase tracking-wider text-slate-300 mb-2">Project Type</label>
+                <select class="w-full px-5 py-3.5 rounded-xl bg-navy-950/80 border border-navy-700 text-white focus:outline-none focus:border-accent-electric text-sm">
+                  <option value="brand">Brand Transformation &amp; Disruption</option>
+                  <option value="interactive">Interactive Web &amp; Spatial Showcase</option>
+                  <option value="campaign">Integrated Global Campaign</option>
+                  <option value="consulting">Creative Strategy &amp; AI Integration</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-mono text-xs uppercase tracking-wider text-slate-300 mb-2">Estimated Timeline</label>
+                <select class="w-full px-5 py-3.5 rounded-xl bg-navy-950/80 border border-navy-700 text-white focus:outline-none focus:border-accent-electric text-sm">
+                  <option value="q1">Immediate (1-3 Months)</option>
+                  <option value="q2">Upcoming Quarter (3-6 Months)</option>
+                  <option value="long">Long-term Strategic Engagement</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-mono text-xs uppercase tracking-wider text-slate-300 mb-2">Project Brief &amp; Ambition</label>
+              <textarea 
+                rows="4" 
+                placeholder="Describe your current category convention and what you want to achieve..." 
+                class="w-full px-5 py-3.5 rounded-xl bg-navy-950/80 border border-navy-700 text-white placeholder-slate-500 focus:outline-none focus:border-accent-electric text-sm"
+              ></textarea>
+            </div>
+
+            <button 
+              type="submit" 
+              class="w-full py-4 rounded-xl bg-gradient-to-r from-accent-electric to-blue-600 hover:from-white hover:to-white text-navy-950 font-bold font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-xl shadow-accent-electric/25 hover:shadow-accent-electric/40"
+            >
+              Submit Brief to Tokyo HQ &rarr;
+            </button>
+            <div id="submitNotice" class="hidden text-center text-xs font-mono text-emerald-400 mt-3">
+              &check; Brief transmitted. ARISA &amp; The Disruption team will respond within 24 hours.
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-16 px-6 md:px-12 bg-navy-950 border-t border-navy-800 text-slate-400 text-xs font-mono relative z-10">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+      
+      <div class="flex items-center space-x-4">
+        <div class="w-7 h-7 rounded bg-navy-700 flex items-center justify-center font-display font-black text-accent-electric">
+          \
+        </div>
+        <div>
+          <span class="text-white font-display font-bold text-sm">TBWA\HAKUHODO INC.</span>
+          <p class="text-[11px] text-navy-300">Shibaura Studio, 1-13-10 Shibaura, Minato-ku, Tokyo 105-0023 Japan</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-6 text-slate-300">
+        <a href="#showcase" class="hover:text-accent-electric transition-colors">Works</a>
+        <a href="#about" class="hover:text-accent-electric transition-colors">Disruption®</a>
+        <a href="https://www.tbwahakuhodo.co.jp/" target="_blank" rel="noopener noreferrer" class="hover:text-accent-electric transition-colors">Original JP Site &nearr;</a>
+        <a href="#contact" class="hover:text-accent-electric transition-colors">Contact</a>
+        <a href="#" class="hover:text-accent-electric transition-colors">Privacy Policy</a>
+      </div>
+
+      <div class="text-center md:text-right text-[11px] text-navy-300">
+        &copy; <span id="currentYear"></span> TBWA\HAKUHODO. All rights reserved.<br/>
+        Recreated with Navy Theme &amp; Horizontal Motion by Governed AI Workforce (SHIPORB).
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Scripts: Custom Interactions & GSAP Horizontal Scroll Engine -->
+  <script>
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    const cursor = document.getElementById('cursor');
+    const cursorDot = document.getElementById('cursor-dot');
+    
+    if (window.innerWidth >= 768) {
+      window.addEventListener('mousemove', (e) => {
+        gsap.to(cursor, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.25,
+          ease: 'power2.out'
+        });
+        gsap.to(cursorDot, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.05
+        });
+      });
+
+      document.querySelectorAll('a, button, input, select, textarea, .glass-card').forEach((el) => {
+        el.addEventListener('mouseenter', () => {
+          cursor.style.width = '48px';
+          cursor.style.height = '48px';
+          cursor.style.borderColor = '#38bdf8';
+          cursor.style.backgroundColor = 'rgba(56, 189, 248, 0.1)';
+        });
+        el.addEventListener('mouseleave', () => {
+          cursor.style.width = '32px';
+          cursor.style.height = '32px';
+          cursor.style.borderColor = 'rgba(56, 189, 248, 0.6)';
+          cursor.style.backgroundColor = 'transparent';
+        });
+      });
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const track = document.getElementById('horizontalTrack');
+    const showcaseSection = document.getElementById('showcase');
+    const progressText = document.getElementById('scroll-progress-pct');
+
+    function getScrollDistance() {
+      return track.scrollWidth - window.innerWidth;
+    }
+
+    gsap.to(track, {
+      x: () => -getScrollDistance(),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: showcaseSection,
+        start: 'top top',
+        end: () => `+=${getScrollDistance()}`,
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const pct = Math.round(self.progress * 100);
+          if (progressText) {
+            progressText.textContent = `${pct}%`;
+          }
+        }
+      }
+    });
+
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const notice = document.getElementById('submitNotice');
+      notice.classList.remove('hidden');
+      e.target.reset();
+      setTimeout(() => {
+        notice.classList.add('hidden');
+      }, 6000);
+    });
+  </script>
+
+</body>
+</html>

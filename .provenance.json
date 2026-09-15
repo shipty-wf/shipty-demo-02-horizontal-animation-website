@@ -1,0 +1,16 @@
+{
+  "generator": "SHIPS-Workforce-ARISA",
+  "goal_id": "8aff0e33-db84-4328-a791-f73a3733abc0",
+  "project_key": "ships-core",
+  "repository": "shipty-wf/shipty-demo-02-horizontal-animation-website",
+  "reference_url": "https://www.tbwahakuhodo.co.jp/",
+  "theme": "navy-blue",
+  "motion": "gsap-scrolltrigger-horizontal",
+  "staff_assigned": [
+    "supervisor-01 (ARISA)",
+    "system-analyst-01 (Rika)",
+    "software-engineer-03 (Hana)",
+    "qa-tester-01 (Chika)"
+  ],
+  "governance_status": "VERIFIED_LIVE"
+}
